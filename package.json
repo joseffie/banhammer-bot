@@ -1,6 +1,6 @@
 {
   "name": "banhammer-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A bot that allows to deal with raid groups more effectively by instantly banning users who join them.",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,13 @@
   },
   "type": "module",
   "author": "joseffie",
+  "keywords": [
+    "telegram",
+    "telegram-bot",
+    "bot",
+    "raiddetector"
+  ],
+  "repository": "https://github.com/joseffie/banhammer-bot.git",
   "license": "MIT",
   "devDependencies": {
     "@babel/eslint-parser": "^7.25.1",
