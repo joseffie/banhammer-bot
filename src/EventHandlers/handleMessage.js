@@ -1,10 +1,7 @@
-import logger from '../logger.js';
-
 /**
  * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
  */
-export default (bot, db) => {
+export default (bot) => {
   bot.on('message', async (ctx) => {
     if (ctx.chat.type === 'private') {
       ctx.reply('Я не работаю в личных сообщениях, взаимодействуйте со мной в чате!');
@@ -14,10 +11,6 @@ export default (bot, db) => {
           message_id: ctx.message.message_id,
         },
       });
-    } else if (ctx.update?.message?.new_chat_title) {
-      const newTitle = ctx.update.message.new_chat_title;
-      await db.updateChatTitle(ctx.chat.id, newTitle);
-      logger.info('chat_rename', `Updated chat ${ctx.chat.id} title to ${newTitle}`);
     }
   });
 };

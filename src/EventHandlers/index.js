@@ -7,5 +7,5 @@ import handleMessage from './handleMessage.js';
  */
 export default (bot, db) => {
   handleNewChatMember(bot, db);
-  handleMessage(bot, db);
+  handleMessage(bot);
 };

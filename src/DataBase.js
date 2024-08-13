@@ -17,7 +17,7 @@ class DataBase {
    */
   _init() {
     this._db.serialize(() => {
-      this._db.run('CREATE TABLE IF NOT EXISTS chats (id INTEGER PRIMARY KEY, title TEXT, is_def_active INTEGER DEFAULT 0, stay_in_chat_limit INTEGER DEFAULT 10)');
+      this._db.run('CREATE TABLE IF NOT EXISTS chats (id INTEGER PRIMARY KEY, is_def_active INTEGER DEFAULT 0, stay_in_chat_limit INTEGER DEFAULT 10)');
 
       this._db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL, username TEXT, chat_id INTEGER NOT NULL, join_time INTEGER NOT NULL, FOREIGN KEY (chat_id) REFERENCES chats (id))');
     });
@@ -26,10 +26,9 @@ class DataBase {
   /**
    * Inserts a new chat into the database.
    * @param { number } id Chat ID.
-   * @param { string } title Chat title.
    */
-  insertChat(id, title) {
-    this._db.run('INSERT OR IGNORE INTO chats VALUES (?, ?, 0, 10)', [id, title]);
+  insertChat(id) {
+    this._db.run('INSERT OR IGNORE INTO chats VALUES (?, 0, 10)', [id]);
   }
 
   /**
@@ -51,15 +50,6 @@ class DataBase {
    */
   deleteUser(id, chatId) {
     this._db.run('DELETE FROM users WHERE id = ? and chat_id = ?', [id, chatId]);
-  }
-
-  /**
-   * Updates the given chat's title.
-   * @param { number } id Chat ID.
-   * @param { string } title New chat title.
-   */
-  updateChatTitle(id, title) {
-    this._db.run('UPDATE chats SET title = ? WHERE id = ?', [title, id]);
   }
 
   /**
@@ -120,13 +110,12 @@ class DataBase {
    */
   getStatus(id) {
     return new Promise((resolve, reject) => {
-      this._db.get('SELECT title, is_def_active, stay_in_chat_limit FROM chats WHERE id = ?', [id], (err, row) => {
+      this._db.get('SELECT is_def_active, stay_in_chat_limit FROM chats WHERE id = ?', [id], (err, row) => {
         if (err) {
           reject(err);
         }
 
         resolve({
-          title: row?.title,
           isDefActive: row?.is_def_active === 1,
           stayInChatLimit: row?.stay_in_chat_limit,
         });
