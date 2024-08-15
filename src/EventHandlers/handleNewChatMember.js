@@ -7,7 +7,7 @@ import cannotBotRestrict from '../helpers/cannotBotRestrict.js';
  */
 export default (bot, db) => {
   bot.on('message:new_chat_members', async (ctx) => {
-    const { id: memberId } = ctx.update.message.new_chat_members;
+    const { id: memberId } = ctx.update.message.new_chat_member;
 
     // Check that the bot has been added to a group
     if (memberId === ctx.me.id) {
@@ -22,9 +22,9 @@ export default (bot, db) => {
     }
 
     const isDefModeDisabled = await db.hasntChatActiveDef(ctx.chatId);
-    const username = ctx.update.message.new_chat_members.username === undefined
+    const username = ctx.update.message.new_chat_member.username === undefined
       ? null
-      : ctx.update.message.new_chat_members.username;
+      : ctx.update.message.new_chat_member.username;
 
     // If defence mode disabled, the user is just added into the database
     if (isDefModeDisabled) {
