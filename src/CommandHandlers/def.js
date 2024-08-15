@@ -12,21 +12,20 @@ export default (bot, db) => {
       return;
     }
 
-    db.hasntChatActiveDef(ctx.chat.id).then(async (result) => {
-      logger.info('def_mode', `${result ? 'Enabled' : 'Disabled'} in chat ${ctx.chat.id}`);
+    const hasntDefModeEnabled = await db.hasntChatActiveDef(ctx.chat.id);
+    logger.info('def_mode', `${hasntDefModeEnabled ? 'Enabled' : 'Disabled'} in chat ${ctx.chat.id}`);
 
-      if (result) {
-        ctx.reply(
-          'Объявляется чрезвычайное положение!\n\nВсе новоприбывшие будут мгновенно <b>отправлены в бан</b> во имя безопасности народа. Чтобы отменить чрезвычайное положение, введите /def ещё раз.',
-          { parse_mode: 'HTML' },
-        );
+    if (hasntDefModeEnabled) {
+      ctx.reply(
+        'Объявляется чрезвычайное положение!\n\nВсе новоприбывшие будут мгновенно <b>отправлены в бан</b> во имя безопасности народа. Чтобы отменить чрезвычайное положение, введите /def ещё раз.',
+        { parse_mode: 'HTML' },
+      );
 
-        db.toggleDefMode(ctx.chatId, true);
-        return;
-      }
+      db.toggleDefMode(ctx.chatId, true);
+      return;
+    }
 
-      ctx.reply('Режим чрезвычайного положения прекращён. Чат вновь готов принимать новую кровь.');
-      db.toggleDefMode(ctx.chatId, false);
-    });
+    ctx.reply('Режим чрезвычайного положения прекращён. Чат вновь готов принимать новую кровь.');
+    db.toggleDefMode(ctx.chatId, false);
   });
 };

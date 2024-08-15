@@ -13,55 +13,49 @@ export default (bot, db) => {
       return;
     }
 
-    db.getAllUsersInChat(ctx.chat.id).then(async (users) => {
-      if (users.length === 0) {
-        ctx.reply('База данных для этого чата пуста. Некого банить.');
-        return;
+    const users = await db.getAllUsersInChat(ctx.chat.id);
+
+    if (users.length === 0) {
+      ctx.reply('База данных для этого чата пуста. Некого банить.');
+      return;
+    }
+
+    const time = db.getStayInChatLimit(ctx.chat.id);
+    let bannedUsersCount = 0;
+    let loopsCount = 0;
+
+    users.forEach(async (user, _, array) => {
+      if ((Date.parse(new Date()) - user.join_time) < time * 60000) {
+        try {
+          if ((await ctx.getChatMember(user.id)).status !== 'administrator') {
+            await ctx.banChatMember(user.id);
+            db.deleteUser(user.id, ctx.chat.id);
+            bannedUsersCount += 1;
+            logger.info('ban_newbies', `User ${user.id} banned from chat ${ctx.chat.id}`);
+          }
+        } catch (error) {
+          console.error('There is error occurred: ', error);
+        }
       }
 
-      let time;
-      let bannedUsersCount = 0;
-      let loopsCount = 0;
+      loopsCount += 1;
 
-      await db.getStayInChatLimit(ctx.chat.id).then((limit) => {
-        time = limit;
-      });
-
-      await users.forEach(async (user, _, array) => {
-        if ((Date.parse(new Date()) - user.join_time) < time * 60000) {
-          try {
-            await ctx.getChatMember(user.id).then(async (data) => {
-              if (data.status !== 'administrator') {
-                await ctx.banChatMember(user.id);
-                await db.deleteUser(user.id, ctx.chat.id);
-                bannedUsersCount += 1;
-                logger.info('ban_newbies', `User ${user.id} banned from chat ${ctx.chat.id}`);
-              }
-            });
-          } catch (error) {
-            console.error('There is error occurred: ', error);
-          }
+      // A workaround way to count the number of banned users in the asynchronous forEach.
+      // If the ban is successful in this iteration, `bannedUsersCount` is incremented by 1.
+      // At the same time in each iteration `loopsCount` is increased by 1
+      // When `loopsCount` becomes equal to the length of the `users` array
+      // (when all users have been enumerated), the code below is executed.
+      if (loopsCount === array.length) {
+        if (bannedUsersCount === 0) {
+          await ctx.reply('Новичков в чате не обнаружено. Ложусь спать с чистым от крови молотом.');
+          return;
         }
 
-        loopsCount += 1;
+        const limitUnit = `${time} ${getNoun(time, 'минуту', 'минуты', 'минут')}`;
+        const bannedUsersUnit = `${bannedUsersCount} ${getNoun(bannedUsersCount, 'человек', 'человека', 'человек')}`;
 
-        // A workaround way to count the number of banned users in the asynchronous forEach.
-        // If the ban is successful in this iteration, `bannedUsersCount` is incremented by 1.
-        // At the same time in each iteration `loopsCount` is increased by 1
-        // When `loopsCount` becomes equal to the length of the `users` array
-        // (when all users have been enumerated), the code below is executed.
-        if (loopsCount === array.length) {
-          if (bannedUsersCount === 0) {
-            await ctx.reply('Новичков в чате не обнаружено. Ложусь спать с чистым от крови молотом.');
-            return;
-          }
-
-          const limitUnit = `${time} ${getNoun(time, 'минуту', 'минуты', 'минут')}`;
-          const bannedUsersUnit = `${bannedUsersCount} ${getNoun(bannedUsersCount, 'человек', 'человека', 'человек')}`;
-
-          ctx.reply(`Все, присоединившиеся к чату ранее, чем ${limitUnit} назад, были успешно забанены! (кувалдированных – ${bannedUsersUnit})`);
-        }
-      });
+        ctx.reply(`Все присоединившиеся к чату ранее ${limitUnit} назад были успешно забанены! (кувалдированных – ${bannedUsersUnit})`);
+      }
     });
   });
 };

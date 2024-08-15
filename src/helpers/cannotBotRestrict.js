@@ -5,23 +5,8 @@ import logger from '../logger.js';
  * @param { import('grammy').Context } ctx
  */
 const warnAboutFailedRestrict = async (ctx) => {
-  replyToMember(ctx, 'Не могу применить данную команду в действии, выдайте мне право банить участников.');
+  replyToMember(ctx, 'Недостаточно прав для выполнения данного действия. Выдайте мне право на бан участников.');
   logger.warn('run_restrict', `Failed in chat ${ctx.chat.id} due to lack of restrict rights`);
-};
-
-/**
- * @param { import('grammy').Context } ctx
- */
-const checkIfBotCannotRestrict = async (ctx) => {
-  let chatMember;
-
-  try {
-    chatMember = await ctx.api.getChatMember(ctx.chat.id, ctx.me.id);
-  } catch (error) {
-    console.error('Error checking bot rights:', error);
-  }
-
-  return chatMember.status !== 'administrator' || !chatMember.can_restrict_members;
 };
 
 /**
@@ -30,14 +15,12 @@ const checkIfBotCannotRestrict = async (ctx) => {
  * @param { import('grammy').Context } ctx
  */
 export default async (ctx) => {
-  let itCannot = false;
+  const bot = await ctx.api.getChatMember(ctx.chat.id, ctx.me.id);
+  const cannotBotRestrict = bot.status !== 'administrator' || !bot.can_restrict_members;
 
-  await checkIfBotCannotRestrict(ctx).then((cannotRestrict) => {
-    if (cannotRestrict) {
-      itCannot = true;
-      warnAboutFailedRestrict(ctx);
-    }
-  });
+  if (cannotBotRestrict) {
+    warnAboutFailedRestrict(ctx);
+  }
 
-  return itCannot;
+  return cannotBotRestrict;
 };
