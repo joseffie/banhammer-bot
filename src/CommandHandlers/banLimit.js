@@ -16,9 +16,7 @@ export default (bot, db) => {
       replyToMember(ctx, 'Введите целое число от 1 до 60 включительно.');
     } else if (match.split(' ').length > 1) {
       replyToMember(ctx, 'Вы указали слишком много аргументов.');
-    } else if (Number.isNaN(num)) {
-      replyToMember(ctx, 'Введите целое число.');
-    } else if (!Number.isInteger(num)) {
+    } else if (Number.isNaN(num) || !Number.isInteger(num)) {
       replyToMember(ctx, 'Введите целое число.');
     } else if (num < 1) {
       replyToMember(ctx, 'Введите число больше или равное 1.');
