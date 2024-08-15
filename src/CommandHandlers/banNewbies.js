@@ -9,7 +9,7 @@ import getNoun from '../helpers/getNoun.js';
  */
 export default (bot, db) => {
   bot.command('ban_newbies', isAdminGuard, async (ctx) => {
-    if (cannotBotRestrict(ctx)) {
+    if (await cannotBotRestrict(ctx)) {
       return;
     }
 

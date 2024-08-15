@@ -8,11 +8,11 @@ import cannotBotRestrict from '../helpers/cannotBotRestrict.js';
  */
 export default (bot, db) => {
   bot.command('def', isAdminGuard, async (ctx) => {
-    if (cannotBotRestrict(ctx)) {
+    if (await cannotBotRestrict(ctx)) {
       return;
     }
 
-    await db.hasntChatActiveDef(ctx.chat.id).then(async (result) => {
+    db.hasntChatActiveDef(ctx.chat.id).then(async (result) => {
       logger.info('def_mode', `${result ? 'Enabled' : 'Disabled'} in chat ${ctx.chat.id}`);
 
       if (result) {
