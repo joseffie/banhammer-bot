@@ -15,6 +15,7 @@ module.exports = {
     'no-console': 'off',
     'no-continue': 'off',
     'no-underscore-dangle': 'off',
+    'operator-linebreak': ['error', 'before'],
     'import/extensions': ['error', 'always'],
   },
 };
