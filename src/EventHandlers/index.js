@@ -1,5 +1,6 @@
 import handleNewChatMember from './handleNewChatMember.js';
 import handleMessage from './handleMessage.js';
+import handleMyChatMember from './handleMyChatMember.js';
 
 /**
  * @param { import('grammy').Bot } bot
@@ -7,5 +8,6 @@ import handleMessage from './handleMessage.js';
  */
 export default (bot, db) => {
   handleNewChatMember(bot, db);
+  handleMyChatMember(bot, db);
   handleMessage(bot);
 };
