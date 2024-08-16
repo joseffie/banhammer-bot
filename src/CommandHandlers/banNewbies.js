@@ -15,7 +15,7 @@ export default (bot, db) => {
       return;
     }
 
-    const time = db.getStayInChatLimit(ctx.chat.id);
+    const time = await db.getStayInChatLimit(ctx.chat.id);
     let bannedUsersCount = 0;
     let loopsCount = 0;
 
