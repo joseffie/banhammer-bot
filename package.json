@@ -1,6 +1,6 @@
 {
   "name": "banhammer-bot",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A bot that allows to deal with raid groups more effectively by instantly banning users who join them.",
   "main": "index.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "telegram",
     "telegram-bot",
     "bot",
+    "grammy",
     "raiddetector"
   ],
   "repository": "https://github.com/joseffie/banhammer-bot.git",
