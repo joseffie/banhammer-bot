@@ -1,18 +1,13 @@
 import logger from '../logger.js';
-import isAdminGuard from '../filters/isAdminGuard.js';
-import cannotBotRestrict from '../helpers/cannotBotRestrict.js';
 import getNoun from '../helpers/getNoun.js';
+import { isAdminGuard, canBotRestrictGuard } from '../filters/filters.js';
 
 /**
  * @param { import('grammy').Bot } bot
  * @param { import('../DataBase.js').Database } db
  */
 export default (bot, db) => {
-  bot.command('ban_newbies', isAdminGuard, async (ctx) => {
-    if (await cannotBotRestrict(ctx)) {
-      return;
-    }
-
+  bot.command('ban_newbies', isAdminGuard, canBotRestrictGuard, async (ctx) => {
     const users = await db.getAllUsersInChat(ctx.chat.id);
 
     if (users.length === 0) {

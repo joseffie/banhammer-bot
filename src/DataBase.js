@@ -71,18 +71,18 @@ class DataBase {
   }
 
   /**
-   * Checks if the defence mode is enabled. Returns `true` if it is not.
+   * Checks if the defence mode is enabled.
    * @param { number } id Chat ID.
    * @returns { Promise<boolean> }
    */
-  hasntChatActiveDef(id) {
+  hasDefModeEnabled(id) {
     return new Promise((resolve, reject) => {
       this._db.get('SELECT is_def_active FROM chats WHERE id = ?', [id], (err, row) => {
         if (err) {
           reject(err);
         }
 
-        resolve(row?.is_def_active === 0);
+        resolve(row?.is_def_active === 1);
       });
     });
   }

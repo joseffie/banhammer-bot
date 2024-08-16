@@ -1,5 +1,5 @@
 import logger from '../logger.js';
-import cannotBotRestrict from '../helpers/cannotBotRestrict.js';
+import canBotRestrict from '../filters/shared/canBotRestrict.js';
 
 /**
  * @param { import('grammy').Bot } bot
@@ -21,17 +21,16 @@ export default (bot, db) => {
       return;
     }
 
-    const isDefModeDisabled = await db.hasntChatActiveDef(ctx.chatId);
     const username = ctx.update.message.new_chat_member.username === undefined
       ? null
       : ctx.update.message.new_chat_member.username;
 
     // If defence mode disabled, the user is just added into the database
-    if (isDefModeDisabled) {
+    if (!(await db.hasDefModeEnabled(ctx.chatId))) {
       db.insertUser(memberId, username, ctx.chat.id, Date.parse(new Date()));
       logger.info('new_chat_member', `User ${memberId} joined to chat ${ctx.chat.id}`);
     } else if (
-      !(await cannotBotRestrict(ctx)) && (await ctx.getChatMember(memberId)).status !== 'administrator'
+      await canBotRestrict(ctx) && (await ctx.getChatMember(memberId)).status !== 'administrator'
     ) {
       await ctx.banChatMember(memberId);
       db.deleteUser(memberId, ctx.chat.id);
