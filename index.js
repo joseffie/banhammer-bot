@@ -2,6 +2,7 @@ import { Bot, GrammyError, HttpError } from 'grammy';
 import { BOT_TOKEN } from './config.js';
 import db from './src/DataBase.js';
 import commands from './src/commandList.js';
+import antiFlood from './src/middlewares/antiFlood.js';
 import handleCommands from './src/CommandHandlers/index.js';
 import handleEvents from './src/EventHandlers/index.js';
 import logger from './src/logger.js';
@@ -9,6 +10,8 @@ import logger from './src/logger.js';
 const bot = new Bot(BOT_TOKEN);
 
 bot.api.setMyCommands(commands);
+
+bot.use(antiFlood());
 
 handleCommands(bot, db);
 handleEvents(bot, db);
