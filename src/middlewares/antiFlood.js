@@ -8,8 +8,8 @@ const userCommands = {};
  * @returns { (ctx: import('grammy').Context, next: import('grammy').NextFunction) }
  * */
 export default () => (ctx, next) => {
-  if (!ctx.hasCommand(['help', 'status', 'def', 'ban_newbies', 'ban_limit'])) {
-    return;
+  if (!ctx.hasCommand(['help', 'start', 'status', 'def', 'ban_newbies', 'ban_limit'])) {
+    return next();
   }
 
   const userId = ctx.from.id;
