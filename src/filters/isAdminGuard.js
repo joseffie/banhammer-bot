@@ -9,10 +9,6 @@ const isAdminWithRestrictRights = async (ctx) => {
   return (member.status === 'administrator' && member.can_restrict_members) || member.status === 'creator';
 };
 
-export default guard(isAdminWithRestrictRights, (ctx) => {
-  ctx.reply('Данная команда доступна только администраторам с правом банить участников.', {
-    reply_parameters: {
-      message_id: ctx.message.message_id,
-    },
-  });
+export default (bot) => guard(isAdminWithRestrictRights, (ctx) => {
+  bot.reply(ctx, 'admin_only_command');
 });

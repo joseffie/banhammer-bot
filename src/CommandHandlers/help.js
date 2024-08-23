@@ -1,13 +1,6 @@
-import replyToMember from '../helpers/replyToMember.js';
-
 /**
- * @param { import('grammy').Bot } bot
+ * @param { import('../Bot.js').Bot } bot
  */
 export default (bot) => {
-  bot.command('help', async (ctx) => {
-    replyToMember(
-      ctx,
-      '<b>Вот мой список команд:</b>\n\n/def – Включить или отключить бан всех пользователей, которые заходят в чат в данный момент.\n\n/ban_limit – Установить время (в минутах) нахождения участника в чате после его присоединения, в течение которого он может быть забанен с помощью команды /ban_newbies. Указывается целое число не менее 1 и не более 60.\n\n/ban_newbies – Забанить всех участников чата, присоединившихся раньше времени, установленного /ban_limit.\n\n/status – Статус бота в данном чате: значения /def и /ban_limit.\n\n<i>Прим.: все команды, кроме /status, может использовать только админ.</i>',
-    );
-  });
+  bot.command('help', async (ctx) => bot.reply(ctx, 'help_message'));
 };

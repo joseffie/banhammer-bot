@@ -1,19 +1,25 @@
-import replyToMember from '../helpers/replyToMember.js';
-import getNoun from '../helpers/getNoun.js';
-
 /**
- * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
+ * @param { import('../Bot.js').Bot } bot
  */
-export default (bot, db) => {
+export default (bot) => {
   bot.command('status', async (ctx) => {
-    const status = await db.getStatus(ctx.chat.id);
-    const isDefActive = status.isDefActive ? 'включён' : 'отключен';
-    const stayInChatLimitUnit = getNoun(status.stayInChatLimit, 'минута', 'минуты', 'минут');
+    const status = await bot.db.getStatus(ctx.chat.id);
 
-    replyToMember(
-      ctx,
-      `<b>ℹ️ Статус бота в чате ${ctx.chat.title}:</b>\n– Бан новоприбывших: ${isDefActive}.\n– Бан-лимит: ${status.stayInChatLimit} ${stayInChatLimitUnit}.`,
-    );
+    if (ctx.chat.type === 'private') {
+      return bot.reply(ctx, {
+        message: 'status_message_private',
+        options: status.locale ?? 'ru',
+      });
+    }
+
+    return bot.reply(ctx, {
+      message: 'status_message',
+      options: {
+        title: ctx.chat.title,
+        isDefActive: await bot.getLocaleMessage(ctx, 'def_status', status.isDefActive),
+        stayInChatLimit: status.stayInChatLimit,
+        locale: status.locale,
+      },
+    });
   });
 };

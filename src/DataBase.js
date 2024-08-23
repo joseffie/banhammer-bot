@@ -17,18 +17,19 @@ class DataBase {
    */
   _init() {
     this._db.serialize(() => {
-      this._db.run('CREATE TABLE IF NOT EXISTS chats (id INTEGER PRIMARY KEY, is_def_active INTEGER DEFAULT 0, stay_in_chat_limit INTEGER DEFAULT 10)');
+      this._db.run('CREATE TABLE IF NOT EXISTS chats (id INTEGER PRIMARY KEY, is_def_active INTEGER DEFAULT 0, stay_in_chat_limit INTEGER DEFAULT 10, locale TEXT DEFAULT \'en\')');
 
-      this._db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL, username TEXT, chat_id INTEGER NOT NULL, join_time INTEGER NOT NULL, FOREIGN KEY (chat_id) REFERENCES chats (id))');
+      this._db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER NOT NULL, username TEXT, chat_id INTEGER NOT NULL, join_time INTEGER NOT NULL, UNIQUE(id, chat_id), FOREIGN KEY (chat_id) REFERENCES chats (id))');
     });
   }
 
   /**
    * Inserts a new chat into the database.
    * @param { number } id Chat ID.
+   * @param { string } [locale='ru'] Language code.
    */
-  insertChat(id) {
-    this._db.run('INSERT OR IGNORE INTO chats VALUES (?, 0, 10)', [id]);
+  insertChat(id, locale = 'ru') {
+    this._db.run('INSERT OR IGNORE INTO chats VALUES (?, 0, 10, ?)', [id, locale]);
   }
 
   /**
@@ -59,6 +60,15 @@ class DataBase {
    */
   setStayInChatLimit(id, time) {
     this._db.run('UPDATE chats SET stay_in_chat_limit = ? WHERE id = ?', [time, id]);
+  }
+
+  /**
+   * Updates the locale for the given chat.
+   * @param { number } id Chat ID.
+   * @param { string } locale Language code.
+   */
+  setLocale(id, locale) {
+    this._db.run('UPDATE chats SET locale = ? WHERE id = ?', [locale, id]);
   }
 
   /**
@@ -105,12 +115,29 @@ class DataBase {
   }
 
   /**
+   * Gets the locale for the given chat.
+   * @param { number } id Chat ID.
+   * @returns { Promise<string> }
+   */
+  getLocale(id) {
+    return new Promise((resolve, reject) => {
+      this._db.get('SELECT locale FROM chats WHERE id = ?', [id], (err, row) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(row?.locale);
+      });
+    });
+  }
+
+  /**
    * Gets the data of the given chat.
    * @param { number } id Chat ID.
    */
   getStatus(id) {
     return new Promise((resolve, reject) => {
-      this._db.get('SELECT is_def_active, stay_in_chat_limit FROM chats WHERE id = ?', [id], (err, row) => {
+      this._db.get('SELECT is_def_active, stay_in_chat_limit, locale FROM chats WHERE id = ?', [id], (err, row) => {
         if (err) {
           reject(err);
         }
@@ -118,6 +145,7 @@ class DataBase {
         resolve({
           isDefActive: row?.is_def_active === 1,
           stayInChatLimit: row?.stay_in_chat_limit,
+          locale: row?.locale,
         });
       });
     });

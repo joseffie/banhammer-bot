@@ -1,6 +1,6 @@
-import { Bot, GrammyError, HttpError } from 'grammy';
+import { GrammyError, HttpError } from 'grammy';
+import Bot from './src/Bot.js';
 import { BOT_TOKEN } from './config.js';
-import db from './src/DataBase.js';
 import commands from './src/commandList.js';
 import antiFlood from './src/middlewares/antiFlood.js';
 import handleCommands from './src/CommandHandlers/index.js';
@@ -11,10 +11,10 @@ const bot = new Bot(BOT_TOKEN);
 
 bot.api.setMyCommands(commands);
 
-bot.use(antiFlood());
+bot.use(antiFlood(bot));
 
-handleCommands(bot, db);
-handleEvents(bot, db);
+handleCommands(bot);
+handleEvents(bot);
 
 bot.catch((error) => {
   const { ctx, error: err } = error;

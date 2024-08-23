@@ -1,14 +1,14 @@
-/* eslint-disable consistent-return */
 import { COMMAND_LIMIT, TIME_FRAME, MUTE_TIME } from '../../config.js';
 import logger from '../logger.js';
 
 const userCommands = {};
 
 /**
+ * @param { import('../Bot.js').Bot } bot
  * @returns { (ctx: import('grammy').Context, next: import('grammy').NextFunction) }
  * */
-export default () => (ctx, next) => {
-  if (!ctx.hasCommand(['help', 'start', 'status', 'def', 'ban_newbies', 'ban_limit'])) {
+export default (bot) => (ctx, next) => {
+  if (!ctx.hasCommand(['help', 'status', 'def', 'bannewbies', 'banlimit', 'setlang'])) {
     return next();
   }
 
@@ -29,12 +29,13 @@ export default () => (ctx, next) => {
           logger.info('anti_flood', `User ${userId} muted for ${(MUTE_TIME - TIME_FRAME) / 1000} seconds for flooding.`);
           userCommands[userId].isMuted = true;
 
-          return ctx.reply(`Вы злоупотребляете использованием команд. Вам даётся ${(MUTE_TIME - TIME_FRAME) / 1000} секунд на остужение своего пыла.`, {
-            reply_parameters: { message_id: ctx.message.message_id },
+          return bot.reply(ctx, {
+            message: 'mute_warn',
+            options: (MUTE_TIME - TIME_FRAME) / 1000,
           });
         }
 
-        if (isMuted) return;
+        if (isMuted) return {};
       }
     }
   } else {

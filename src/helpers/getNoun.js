@@ -1,4 +1,16 @@
 /**
+ * Clones nouns depending on the numeral on which they depend.
+ * @param { number } number
+ * @param { string } singular The singular noun.
+ * @param { string } plural The plural noun.
+ */
+export const getNounEn = (number, singular, plural) => {
+  const num = Math.abs(number);
+
+  return num === 1 ? singular : plural;
+};
+
+/**
  * Clones Russian nouns depending on the numeral on which they depend.
  * @param { number } number
  * @param { string } one Данное существительное при числе 1.

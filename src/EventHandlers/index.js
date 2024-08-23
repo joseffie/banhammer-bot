@@ -1,13 +1,12 @@
 import handleNewChatMember from './handleNewChatMember.js';
-import handleMessage from './handleMessage.js';
 import handleMyChatMember from './handleMyChatMember.js';
+import handleCallbackQuery from './handleCallbackQuery.js';
 
 /**
- * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
+ * @param { import('../Bot.js').Bot } bot
  */
-export default (bot, db) => {
-  handleNewChatMember(bot, db);
-  handleMyChatMember(bot, db);
-  handleMessage(bot);
+export default (bot) => {
+  handleNewChatMember(bot);
+  handleMyChatMember(bot);
+  handleCallbackQuery(bot);
 };

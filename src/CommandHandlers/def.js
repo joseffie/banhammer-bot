@@ -1,26 +1,22 @@
 import logger from '../logger.js';
-import { isAdminGuard, canBotRestrictGuard } from '../filters/filters.js';
+import { isAdminGuard, canBotRestrictGuard, isSupergroupGuard } from '../filters/filters.js';
 
 /**
- * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
+ * @param { import('../Bot.js').Bot } bot
  */
-export default (bot, db) => {
-  bot.command('def', isAdminGuard, canBotRestrictGuard, async (ctx) => {
-    const hasDefModeEnabled = await db.hasDefModeEnabled(ctx.chat.id);
+export default (bot) => {
+  // Prevent defence mode enableing in non-supergroups
+  // due to its inability to track member join messages in them.
+  bot.command('def', isSupergroupGuard(bot), isAdminGuard(bot), canBotRestrictGuard(bot), async (ctx) => {
+    const hasDefModeEnabled = await bot.db.hasDefModeEnabled(ctx.chat.id);
     logger.info('def_mode', `${hasDefModeEnabled ? 'Disabled' : 'Enabled'} in chat ${ctx.chat.id}`);
 
     if (hasDefModeEnabled) {
-      ctx.reply('Режим чрезвычайного положения прекращён. Чат вновь готов принимать новую кровь.');
-      db.toggleDefMode(ctx.chatId, false);
-      return;
+      bot.db.toggleDefMode(ctx.chatId, false);
+      return bot.reply(ctx, 'def_disabled', false);
     }
 
-    ctx.reply(
-      'Объявляется чрезвычайное положение!\n\nВсе новоприбывшие будут мгновенно <b>отправлены в бан</b> во имя безопасности народа. Чтобы отменить чрезвычайное положение, введите /def ещё раз.',
-      { parse_mode: 'HTML' },
-    );
-
-    db.toggleDefMode(ctx.chatId, true);
+    bot.db.toggleDefMode(ctx.chatId, true);
+    return bot.reply(ctx, 'def_enabled', false);
   });
 };

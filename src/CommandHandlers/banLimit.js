@@ -1,30 +1,30 @@
-import isAdminGuard from '../filters/isAdminGuard.js';
-import replyToMember from '../helpers/replyToMember.js';
-import getNoun from '../helpers/getNoun.js';
+import { isAdminGuard, isSupergroupGuard } from '../filters/filters.js';
 import logger from '../logger.js';
 
 /**
- * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
+ * @param { import('../Bot.js').Bot } bot
  */
-export default (bot, db) => {
-  bot.command('ban_limit', isAdminGuard, async (ctx) => {
+export default (bot) => {
+  bot.command('banlimit', isSupergroupGuard(bot), isAdminGuard(bot), async (ctx) => {
     const match = ctx.match.trim();
     const num = parseFloat(match);
 
     if (match === '') {
-      replyToMember(ctx, 'Введите целое число от 1 до 60 включительно.');
+      bot.reply(ctx, 'ban_limit_is_not_number');
     } else if (match.split(' ').length > 1) {
-      replyToMember(ctx, 'Вы указали слишком много аргументов.');
+      bot.reply(ctx, 'too_many_arguments');
     } else if (Number.isNaN(num) || !Number.isInteger(num)) {
-      replyToMember(ctx, 'Введите целое число.');
+      bot.reply(ctx, 'ban_limit_is_not_integer');
     } else if (num < 1) {
-      replyToMember(ctx, 'Введите число больше или равное 1.');
+      bot.reply(ctx, 'ban_limit_lower_than_allowed');
     } else if (num > 60) {
-      replyToMember(ctx, 'Введите число меньше или равное 60.');
+      bot.reply(ctx, 'ban_limit_higher_than_allowed');
     } else {
-      replyToMember(ctx, `Успешно установлен бан-лимит ${num} ${getNoun(num, 'минута', 'минуты', 'минут')}.`);
-      db.setStayInChatLimit(ctx.chat.id, match);
+      bot.reply(ctx, {
+        message: 'ban_limit_changed',
+        options: num,
+      });
+      bot.db.setStayInChatLimit(ctx.chat.id, match);
       logger.info('ban_limit', `In chat ${ctx.chat.id} set ban limit ${match}`);
     }
   });

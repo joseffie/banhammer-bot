@@ -2,23 +2,17 @@ import logger from '../logger.js';
 import canBotRestrict from '../filters/shared/canBotRestrict.js';
 
 /**
- * @param { import('grammy').Bot } bot
- * @param { import('../DataBase.js').Database } db
+ * @param { import('../Bot.js').Bot } bot
  */
-export default (bot, db) => {
+export default (bot) => {
   bot.on('message:new_chat_members', async (ctx) => {
     const { id: memberId } = ctx.update.message.new_chat_member;
 
     // Check that the bot has been added to a group
     if (memberId === ctx.me.id) {
-      ctx.reply(
-        'Доброго ранку! Ваш покорный слуга прибыл, чтобы защитить чат от массовых рейдов иностранных захватчиков!\n\nВсе мои команды находятся в /help или в меню над полем для ввода сообщений.\n\n<i>Не забудьте выдать мне право на бан участников. Без них я – как рейдеры без члена в жопе.</i>',
-        { parse_mode: 'HTML' },
-      );
-
-      db.insertChat(ctx.chat.id);
+      bot.db.insertChat(ctx.chat.id);
       logger.info('new_chat_member', `I was added to the chat ${ctx.chat.id}`);
-      return;
+      return bot.reply(ctx, 'welcome_message');
     }
 
     const username = ctx.update.message.new_chat_member.username === undefined
@@ -26,15 +20,17 @@ export default (bot, db) => {
       : ctx.update.message.new_chat_member.username;
 
     // If defence mode disabled, the user is just added into the database
-    if (!(await db.hasDefModeEnabled(ctx.chatId))) {
-      db.insertUser(memberId, username, ctx.chat.id, Date.parse(new Date()));
+    if (!(await bot.db.hasDefModeEnabled(ctx.chatId))) {
+      bot.db.insertUser(memberId, username, ctx.chat.id, Date.parse(new Date()));
       logger.info('new_chat_member', `User ${memberId} joined to chat ${ctx.chat.id}`);
     } else if (
       await canBotRestrict(ctx) && (await ctx.getChatMember(memberId)).status !== 'administrator'
     ) {
       await ctx.banChatMember(memberId);
-      db.deleteUser(memberId, ctx.chat.id);
+      bot.db.deleteUser(memberId, ctx.chat.id);
       logger.warn('new_chat_member', `User ${memberId} banned from chat ${ctx.chat.id} (defence mode)`);
     }
+
+    return {};
   });
 };
