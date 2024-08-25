@@ -8,7 +8,7 @@ export default (bot) => {
     if (ctx.chat.type === 'private') {
       return bot.reply(ctx, {
         message: 'status_message_private',
-        options: status.locale ?? 'ru',
+        options: await bot.getLocale(ctx.from.language_code, ctx.chat.id),
       });
     }
 
