@@ -1,6 +1,6 @@
 {
   "name": "banhammer-bot",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "A bot that allows to deal with raid groups more effectively by instantly banning users who join them.",
   "main": "index.js",
   "scripts": {
