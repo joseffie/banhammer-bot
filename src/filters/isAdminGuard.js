@@ -1,4 +1,4 @@
-import { guard } from 'grammy-guard';
+import { guard, and, isChat } from 'grammy-guard';
 
 /**
  * @param { import('grammy').Context }
@@ -9,6 +9,6 @@ const isAdminWithRestrictRights = async (ctx) => {
   return (member.status === 'administrator' && member.can_restrict_members) || member.status === 'creator';
 };
 
-export default (bot) => guard(isAdminWithRestrictRights, (ctx) => {
+export default (bot) => guard(and(isChat, isAdminWithRestrictRights), (ctx) => {
   bot.reply(ctx, 'admin_only_command');
 });
