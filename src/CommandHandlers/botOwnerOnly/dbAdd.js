@@ -21,7 +21,6 @@ export default (bot) => {
       senderId,
       senderUsername === undefined ? null : senderUsername,
       ctx.chat.id,
-      Date.parse(new Date()),
     );
 
     logger.info('admin_dbadd', `User ${senderId} from chat ${ctx.chat.id} added to the database manually`);

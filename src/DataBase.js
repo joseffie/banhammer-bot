@@ -37,10 +37,10 @@ class DataBase {
    * @param { number } id User ID.
    * @param { string } username User username without `@`.
    * @param { number } chatId Chat ID where user from.
-   * @param { number } joinTime
+   * @param { number } [joinTime=Date.parse(new Date())]
    * Time the user joined the chat in milliseconds elapsed since 1 January 1970 00:00:00 UTC.
    */
-  insertUser(id, username, chatId, joinTime) {
+  insertUser(id, username, chatId, joinTime = Date.parse(new Date())) {
     this._db.run('INSERT OR IGNORE INTO users VALUES (?, ?, ?, ?)', [id, username, chatId, joinTime]);
   }
 

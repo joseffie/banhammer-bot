@@ -21,7 +21,7 @@ export default (bot) => {
 
     // If defence mode disabled, the user is just added into the database
     if (!(await bot.db.hasDefModeEnabled(ctx.chatId))) {
-      bot.db.insertUser(memberId, username, ctx.chat.id, Date.parse(new Date()));
+      bot.db.insertUser(memberId, username, ctx.chat.id);
       logger.info('new_chat_member', `User ${memberId} joined to chat ${ctx.chat.id}`);
     } else if (
       await canBotRestrict(ctx) && (await ctx.getChatMember(memberId)).status !== 'administrator'
